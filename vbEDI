@@ -1,0 +1,18 @@
+
+                            'ISA (Interchange Control Header) 
+                            sw.Write("ISA" & elementSeparator & authInfoQual & elementSeparator & Space(10) & elementSeparator & secInfoQual & elementSeparator & Space(10) & elementSeparator & interIdQual & elementSeparator & mySCAC & Space(11) & elementSeparator & interIdQual2 & elementSeparator & irId & Space(3) & elementSeparator & dateAsStringISA & elementSeparator & timeAsString & elementSeparator & repeatCharacter & elementSeparator & icvNum & elementSeparator & icnNum & elementSeparator & acknowReq & elementSeparator & usageInd & elementSeparator & subElementSeparator & segmentTerminator)
+                            sw.Write(Environment.NewLine)
+                            segmentsCount = segmentsCount + 1
+
+
+                            'GS Functional Group Header
+                            sw.Write("GS" & elementSeparator & fId & elementSeparator & mySCAC & elementSeparator & irId & elementSeparator & dateAsString & elementSeparator & timeAsString & elementSeparator & gcNum & elementSeparator & raCode & elementSeparator & vriiCode & segmentTerminator)
+                            sw.Write(Environment.NewLine)
+                            segmentsCount = segmentsCount + 1
+                            gsCnumCount = gsCnumCount + 1
+
+                            'ST Transactional Set Header
+                            sw.Write("ST" & elementSeparator & tsId & elementSeparator & tscNum & segmentTerminator)
+                            sw.Write(Environment.NewLine)
+                            'gsCnumCount = gsCnumCount + 1 for next Set 
+                            segmentsCount = segmentsCount + 1
