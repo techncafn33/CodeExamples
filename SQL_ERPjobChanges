@@ -1,0 +1,49 @@
+     CREATE PROCEDURE [dbo].[JobChanges_T]
+        @Date1 Date, @Date2 Date
+      AS
+      BEGIN
+        -- SET NOCOUNT ON added to prevent extra result sets from
+        -- interfering with SELECT statements.
+        SET NOCOUNT ON;
+
+      WITH JOBCHANGES AS 
+      (
+      SELECT 
+      DISTINCT
+      CONVERT(DATE,CL.DateStamp,101) AS 'Date',
+      CONVERT(VARCHAR,MONTH(CL.DateStamp)) + SPACE(2) + CONVERT(VARCHAR,YEAR(CL.DateStamp)) AS 'Month_Year',
+      CL.TableName 'TableName', 
+      CL.Key1 AS 'Job_Number',
+      --CASE WHEN CL.TableName IN ('JobMtl') THEN CL.Key2 ELSE '' END AS 'Job_AssemblySeq_MTlSeq',
+      --CASE WHEN CL.TableName IN ('JobOper') THEN CL.Key2 ELSE '' END AS 'Job_AssemblySeq_OprSeq',
+      CL.LogText AS 'Change_Description',
+      CASE WHEN UPPER(CL.LogText) NOT LIKE '%NEW RECORD%' THEN COUNT(CL.Key1) ELSE 0 END AS 'Record_Change_Count'
+      FROM ChgLog CL
+      INNER JOIN JobHead JH ON JH.JobNum = CL.Key1
+      WHERE 
+      CL.TableName IN ('JobHead','JobMtl','JobOper')
+      AND 
+      CL.LogText NOT LIKE '%Closed%' 
+      GROUP BY 
+      CL.DateStamp,
+      CL.TableName,
+      CL.Key1,
+      CL.Key2,
+      CL.LogText
+      )
+      SELECT 
+      *
+      FROM 
+      JOBCHANGES 
+      WHERE 
+      JOBCHANGES.Job_Number LIKE 'T%' AND UPPER(JOBCHANGES.Change_Description)NOT LIKE '%NEW RECORD%' 
+      AND
+      JOBCHANGES.Date >= @Date1 AND JOBCHANGES.Date <= @Date2
+      GROUP BY 
+      JOBCHANGES.TableName,
+      JOBCHANGES.Job_Number,
+      JOBCHANGES.Change_Description,
+      JOBCHANGES.Date,
+      JOBCHANGES.Month_Year,
+      JOBCHANGES.Record_Change_Count
+      END
